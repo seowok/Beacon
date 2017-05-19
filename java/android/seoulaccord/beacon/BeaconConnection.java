@@ -12,7 +12,6 @@ import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by seowok on 2017-05-18.
@@ -21,34 +20,42 @@ import java.util.UUID;
 public class BeaconConnection extends Application {
 
     private BeaconManager beacon_manager;
+    private UserData user;
+    private RoomBeacon room;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        //DB로부터 사용자 정보 받아옴
+        //user = new UserData(temp_db);
 
-        beacon_manager = new BeaconManager(getApplicationContext());
+        if(user.isTakeRoom()) {
+            room = user.getRoomBeacon();
+            beacon_manager = new BeaconManager(getApplicationContext());
 
-        beacon_manager.setMonitoringListener(new BeaconManager.MonitoringListener() {
-            @Override
-            public void onEnteredRegion(Region region, List<Beacon> list) {
-                showNotification("514", "Check In");
-            }
+            beacon_manager.setMonitoringListener(new BeaconManager.MonitoringListener() {
+                @Override
+                public void onEnteredRegion(Region region, List<Beacon> list) {
+                    showNotification(room.room_number, "Check In");
+                }
 
-            @Override
-            public void onExitedRegion(Region region) {
-                showNotification("514", "Check Out");
-            }
-        });
+                @Override
+                public void onExitedRegion(Region region) {
+                    showNotification(room.room_number, "Check Out");
+                }
+            });
 
-        beacon_manager.connect(new BeaconManager.ServiceReadyCallback() {
-            @Override
-            public void onServiceReady() {
-                beacon_manager.startMonitoring(new Region("514",
-                                                UUID.fromString("E2C56DB5-DFFB-48D2-B060-D0F5A71096E0"),
-                                                40001, 10622));
+            beacon_manager.connect(new BeaconManager.ServiceReadyCallback() {
+                //E2C56DB5-DFFB-48D2-B060-D0F5A71096E0, 40001, 10622
+                @Override
+                public void onServiceReady() {
+                    beacon_manager.startMonitoring(new Region(room.room_number,
+                            room.getUUID(),
+                            room.getMajor(), room.getMinor()));
 
-            }
-        });
+                }
+            });
+        }
     }
 
     public void showNotification(String title, String message){
@@ -68,4 +75,18 @@ public class BeaconConnection extends Application {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notification_manager.notify(1, notification);
     }
+
+    /*private boolean isAlreadyRunActivity(){
+        final String package_name = "android.seoulaccord.beacon";
+        ActivityManager activity_manager = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> process_list = activity_manager.getRunningAppProcesses();
+
+        for(ActivityManager.RunningAppProcessInfo process_info : process_list){
+            if(process_info.processName.equals(package_name)) {
+                if (process_info.importance == process_info.IMPORTANCE_FOREGROUND)
+                    return true;
+            }
+        }
+        return false;
+    }*/
 }
