@@ -4,6 +4,7 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Created by seowok on 2017-05-19.
@@ -23,7 +24,7 @@ public class UserData {
     private String return_date = null;
 
     //DB로부터 user data를 받아 생성
-    public UserData(TempDB user_data) {
+    /*public UserData(TempDB user_data) {
         user_id = user_data.user_id;
         user_password = user_data.user_password;
 
@@ -35,6 +36,20 @@ public class UserData {
             engage_date = user_data.engage_date;
             return_date = user_data.return_date;
         }
+    }*/
+
+    /**test용
+    * 생성자
+    * */
+    public UserData(){
+        user_id = "test";
+        user_password = "test";
+
+        room = new RoomBeacon("777", UUID.fromString("E2C56DB5-DFFB-48D2-B060-D0F5A71096E0")
+                , 40001
+                , 10622);
+        take_room = true;
+        check_in = false;
     }
 
     //이 함수를 호출할 때 parameter를 Button, spinner등을 이용하여 exception이 발생하지 않게 한다
