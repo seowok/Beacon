@@ -3,6 +3,10 @@ package android.seoulaccord.beacon;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.seoulaccord.beacon.Network.NetworkService;
+import android.seoulaccord.beacon.Server.ServerController;
+import android.seoulaccord.beacon.Server.UserData;
+import android.seoulaccord.beacon.Server.UserResult;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -13,24 +17,32 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class SignUpActivity extends Activity {
     InputMethodManager imm;
 
     EditText id_et, pw_et, name_et, birth_et, phone_et;
     Button id_check, submit, reset;
     LinearLayout root_view;
-    UserInformation userInformation;
-
-    private String id, password;
-    private String name;
-    private String birth;
 
     boolean id_check_OK = false;
+
+    private String id;
+    private String password;
+    private String name;
+
+    NetworkService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+
+        ////////////////////////서비스 객체 초기화////////////////////////
+        service = ServerController.getInstance().getNetworkService();
 
         root_view = (LinearLayout)findViewById(R.id.signup_root_view);
         imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
@@ -38,9 +50,6 @@ public class SignUpActivity extends Activity {
         id_et = (EditText)findViewById(R.id.signup_id_et);
         pw_et = (EditText)findViewById(R.id.signup_password_et);
         name_et = (EditText)findViewById(R.id.signup_name_et);
-        birth_et = (EditText)findViewById(R.id.signup_birth_et);
-        phone_et = (EditText)findViewById(R.id.signup_num_et) ;
-
         id_check = (Button)findViewById(R.id.id_check_btn);
         submit = (Button)findViewById(R.id.signup_submit_btn);
         reset = (Button)findViewById(R.id.signup_reset_btn);
@@ -59,16 +68,29 @@ public class SignUpActivity extends Activity {
         id_check.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String id_input_text = id_et.getText().toString();
-                if(UserInformation.checkUserData(id_input_text, "") == UserInformation.ID_NOT_FOUND){
-                    id = id_input_text;
-                    id_check_OK = true;
-                    Toast.makeText(getApplicationContext(), "사용 가능한 아이디입니다", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), "이미 존재하는 아이디입니다", Toast.LENGTH_SHORT).show();
-                    id_et.setText("");
-                }
+                Call<UserResult> userResultCall = service.getIdCheck(id_et.getText().toString());
+                userResultCall.enqueue(new Callback<UserResult>() {
+                    @Override
+                    public void onResponse(Call<UserResult> call, Response<UserResult> response) {
+                        if(response.isSuccessful()){
+                            if(response.body().message.equals("notExist")){
+                                id = id_et.getText().toString();
+                                id_check_OK = true;
+                                Toast.makeText(getApplicationContext(), "사용 가능한 아이디입니다", Toast.LENGTH_SHORT).show();
+                            }
+                            else if(response.body().message.equals("Exist")){
+                                id_check_OK = false;
+                                Toast.makeText(getApplicationContext(), "이미 존재하는 아이디입니다", Toast.LENGTH_SHORT).show();
+                                id_et.setText("");
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<UserResult> call, Throwable t) {
+                        Toast.makeText(getApplicationContext(), "ID Check Fail", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 
@@ -107,9 +129,28 @@ public class SignUpActivity extends Activity {
                 }
                 else
                 {
-                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-                    startActivity(intent);
-                    finish();
+                    UserData new_user = new UserData();
+                    new_user.user_id = id;
+                    new_user.user_password = password;
+
+                    Call<UserResult> resisterUser = service.resisterUser(new_user);
+                    resisterUser.enqueue(new Callback<UserResult>() {
+                        @Override
+                        public void onResponse(Call<UserResult> call, Response<UserResult> response) {
+                            if(response.isSuccessful()){
+                                if(response.body().message.equals("resister")){
+                                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<UserResult> call, Throwable t) {
+                            Toast.makeText(getApplicationContext(), "Resister Error", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
         });

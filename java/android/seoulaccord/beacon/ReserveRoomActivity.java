@@ -4,20 +4,31 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.seoulaccord.beacon.Data.UserInfo;
+import android.seoulaccord.beacon.Data.UserRoomInfo;
+import android.seoulaccord.beacon.Network.NetworkService;
+import android.seoulaccord.beacon.Server.RoomResult;
+import android.seoulaccord.beacon.Server.ServerController;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.estimote.sdk.cloud.internal.User;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ReserveRoomActivity extends Activity {
     final int MAX_FLOOR = 6;
     final int MIN_FLOOR = 1;
     final int MAX_ROOM_NUM = 10;
-    UserRoomInfo roominfo;
     Button reserve_next_btn;
     Button[] room_btn_arr;
-    Button up_btn;
-    Button down_btn;
+    ImageButton up_btn;
+    ImageButton down_btn;
     Button now_floor_btn;
     TextView floor_tv;
 
@@ -27,12 +38,15 @@ public class ReserveRoomActivity extends Activity {
     int[][] real_room_check;//예약불가, 예약가능
     int now_floor = 1;
     Intent intent;
-    View.OnClickListener clickListener;
+
+    NetworkService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reserve_room);
+
+        service = ServerController.getInstance().getNetworkService();
 
         reserve_next_btn = (Button)findViewById(R.id.reserve_next_btn);
         room_btn_arr = new Button[MAX_ROOM_NUM + 1];
@@ -46,8 +60,8 @@ public class ReserveRoomActivity extends Activity {
         room_btn_arr[8] = (Button) findViewById(R.id.room8);
         room_btn_arr[9] = (Button) findViewById(R.id.room9);
         room_btn_arr[10] = (Button) findViewById(R.id.room10);
-        up_btn = (Button) findViewById(R.id.floor_up_btn);
-        down_btn = (Button) findViewById(R.id.floor_down_btn);
+        up_btn = (ImageButton) findViewById(R.id.floor_up_btn);
+        down_btn = (ImageButton) findViewById(R.id.floor_down_btn);
         now_floor_btn = (Button) findViewById(R.id.now_floor_btn);
         floor_tv = (TextView)findViewById(R.id.floor_tv);
 
@@ -59,7 +73,9 @@ public class ReserveRoomActivity extends Activity {
         max_room_cnt = Integer.parseInt(max_room_str);
         String room_check_in = intent.getExtras().getString("check_in");
         String room_check_out = intent.getExtras().getString("check_out");
-        roominfo = new UserRoomInfo(room_check_in, room_check_out, max_room_cnt);
+
+        UserInfo.check_in = room_check_in;
+        UserInfo.check_out = room_check_out;
 
         for (int i = 1; i <= MAX_FLOOR; i++) {
             for (int j = 1; j <= MAX_ROOM_NUM; j++)
@@ -89,22 +105,19 @@ public class ReserveRoomActivity extends Activity {
                             if (room_cnt == max_room_cnt)
                                 Toast.makeText(getApplicationContext(), "기존의 방을 클릭하여 취소하세요.", Toast.LENGTH_SHORT).show();
                             else {
-                                room_btn_arr[room_index].setBackgroundColor(Color.BLUE);
+                                room_btn_arr[room_index].setBackgroundResource(R.drawable.roomselect_big);
                                 room_btn_arr[room_index].setTextColor(Color.WHITE);
                                 user_room_check[now_floor][room_index] = 1;
                                 room_cnt++;
-                                roominfo.getRoom_num_arr().add(room_btn_arr[room_index].getText().toString());
+                                UserInfo.room_number = room_btn_arr[room_index].getText().toString();
                             }
                         } else {
-                            room_btn_arr[room_index].setBackgroundColor(Color.WHITE);
+                            room_btn_arr[room_index].setBackgroundColor(Color.TRANSPARENT);
                             room_btn_arr[room_index].setTextColor(Color.BLACK);
                             user_room_check[now_floor][room_index] = 0;
                             room_cnt--;
-                            for(int i = 0; i < roominfo.getRoom_num_arr().size(); i++)
-                            {
-                                if(roominfo.getRoom_num_arr().get(i) == room_btn_arr[room_index].getText().toString())
-                                    roominfo.getRoom_num_arr().remove(i);
-                            }
+                            if(UserInfo.room_number == room_btn_arr[room_index].getText().toString())
+                                UserInfo.room_number = null;
                         }
                     }
                 });
@@ -182,7 +195,30 @@ public class ReserveRoomActivity extends Activity {
                     Intent intent2 = new Intent(ReserveRoomActivity.this, MyInfoActivity.class);
                     intent2.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent2.putExtra("room_info", roominfo);
+                    //!!서버 통신 필요
+                    //이 과정에서 입력된 방 정보를 서버로 업데이트 시켜줘야 한다.
+
+                    Call<RoomResult> roomResultCall = service.getRoomInfo(UserInfo.room_number);
+                    roomResultCall.enqueue(new Callback<RoomResult>() {
+                        @Override
+                        public void onResponse(Call<RoomResult> call, Response<RoomResult> response) {
+                            if(response.isSuccessful()){
+                                if(response.body().message.equals("ok")){
+                                    String room_num = response.body().result.room_number;
+                                    String uuid = response.body().result.room_uuid;
+                                    int major = response.body().result.major;
+                                    int minor = response.body().result.minor;
+
+                                    UserInfo.setUserRoom(room_num, uuid, major, minor);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<RoomResult> call, Throwable t) {
+
+                        }
+                    });
                     startActivity(intent2);
                 }
                 else

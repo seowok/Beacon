@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#666666"
+    android:background="@drawable/background2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="android.seoulaccord.beacon.SignUpActivity"
@@ -29,9 +29,9 @@
             android:orientation="vertical">
 
             <LinearLayout
-                android:layout_marginBottom="8dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:orientation="horizontal">
 
                 <TextView
@@ -58,13 +58,13 @@
                 android:id="@+id/signup_id_et"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:background="@drawable/border"
-                android:paddingLeft="20dp"
-                android:textCursorDrawable="@null"
+                android:background="@drawable/whiteblank"
                 android:inputType="text"
+                android:maxLines="1"
+                android:paddingLeft="20dp"
                 android:textColor="#ffffff"
-                android:textStyle="bold"
-                android:maxLines="1" />
+                android:textCursorDrawable="@null"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout
@@ -76,9 +76,9 @@
             android:orientation="vertical">
 
             <TextView
-                android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="비밀번호"
                 android:textColor="#ffffff"
                 android:textSize="20dp"
@@ -88,7 +88,28 @@
                 android:id="@+id/signup_password_et"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:background="@drawable/border"
+                android:background="@drawable/whiteblank"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:paddingLeft="20dp"
+                android:textColor="#ffffff"
+                android:textCursorDrawable="@null"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="비밀번호 확인"
+                android:textColor="#ffffff"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/signup_password_check_et"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/whiteblank"
                 android:inputType="textPassword"
                 android:maxLines="1"
                 android:paddingLeft="20dp"
@@ -107,9 +128,9 @@
             android:orientation="vertical">
 
             <TextView
-                android:layout_marginBottom="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="이름"
                 android:textColor="#ffffff"
                 android:textSize="20dp"
@@ -119,72 +140,10 @@
                 android:id="@+id/signup_name_et"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:paddingLeft="20dp"
-                android:textCursorDrawable="@null"
-                android:background="@drawable/border"
-                android:textColor="#ffffff"
-                android:textStyle="bold"
-                android:maxLines="1" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="20dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_marginBottom="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="생년월일"
-                android:textColor="#ffffff"
-                android:textSize="20dp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/signup_birth_et"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:background="@drawable/border"
-                android:hint="YYYY-MM-DD"
+                android:background="@drawable/whiteblank"
                 android:maxLines="1"
                 android:paddingLeft="20dp"
                 android:textColor="#ffffff"
-                android:textColorHint="#ffffff"
-                android:textCursorDrawable="@null"
-                android:textStyle="bold" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="20dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_marginBottom="8dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="연락처"
-                android:textColor="#ffffff"
-                android:textSize="20dp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/signup_num_et"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:background="@drawable/border"
-                android:hint="010-0000-0000"
-                android:maxLines="1"
-                android:paddingLeft="20dp"
-                android:textColor="#ffffff"
-                android:textColorHint="#ffffff"
                 android:textCursorDrawable="@null"
                 android:textStyle="bold" />
 
@@ -194,25 +153,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
             android:orientation="vertical">
 
             <Button
                 android:id="@+id/signup_submit_btn"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
                 android:layout_marginTop="15dp"
-                android:background="#4D4D4D"
+                android:background="@drawable/yellowbutton"
                 android:text="회원가입"
-                android:textColor="#ffffff"
+                android:textColor="#FFFFFF"
                 android:textSize="20dp"
                 android:textStyle="bold" />
 
             <Button
                 android:id="@+id/signup_reset_btn"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="40dp"
                 android:layout_marginLeft="30dp"
                 android:layout_marginRight="30dp"
                 android:layout_marginTop="15dp"

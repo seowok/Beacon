@@ -1,9 +1,11 @@
 package android.seoulaccord.beacon;
+
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.seoulaccord.beacon.Data.UserRoomInfo;
 import android.support.v7.app.AlertDialog;
 import android.view.KeyEvent;
 import android.view.View;
@@ -14,9 +16,10 @@ public class MyInfoActivity extends Activity {
 
     boolean room_service_request = false;
     Button reserve_btn;
-    Button room_service_btn;
-    Button open_room_btn;
-    Button logout_btn;
+    Button info_btn;
+    Button smartkey_btn;
+    Button account_btn;
+    UserRoomInfo roomInfo;
 
     SharedPreferences sf;
 
@@ -26,9 +29,9 @@ public class MyInfoActivity extends Activity {
         setContentView(R.layout.activity_my_info);
 
         reserve_btn = (Button)findViewById(R.id.reserve_btn);
-        room_service_btn = (Button)findViewById(R.id.service_btn);
-        open_room_btn = (Button)findViewById(R.id.open_btn);
-        logout_btn = (Button)findViewById(R.id.logout_btn);
+        info_btn = (Button)findViewById(R.id.info_btn);
+        smartkey_btn = (Button)findViewById(R.id.smartkey_btn);
+        account_btn = (Button)findViewById(R.id.account_btn);
 
         SharedPreferences sf = getSharedPreferences("reserve_data", MODE_PRIVATE);
         if(!sf.getString("hotel", "").equals("")) {
@@ -43,24 +46,20 @@ public class MyInfoActivity extends Activity {
                 startActivity(intent);
             }
         });
-        room_service_btn.setOnClickListener(new View.OnClickListener() {
+        info_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "룸서비스 요청", Toast.LENGTH_SHORT).show();
-                room_service_request = true;
             }
         });
-        open_room_btn.setOnClickListener(new View.OnClickListener() {
+        smartkey_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MyInfoActivity.this, SmartKeyActivity.class);
-                startActivity(intent);
             }
         });
-        logout_btn.setOnClickListener(new View.OnClickListener() {
+        account_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                logout();
+
             }
         });
     }
@@ -70,18 +69,11 @@ public class MyInfoActivity extends Activity {
         super.onResume();
         try {
             Intent intent = getIntent();
+            //!!서버 통신 필요
+            //roomInfo로 서버에 이전에 예약된 방 정보들을 불러와야 한다.
             if((UserRoomInfo)intent.getSerializableExtra("room_info") != null) {
-                UserRoomInfo roominfo = (UserRoomInfo) intent.getSerializableExtra("room_info");
-                for(int i = 0; i < roominfo.getUser_room_num(); i ++)
-                    Toast.makeText(getApplicationContext(), "확인" + roominfo.getRoom_num_arr().get(i), Toast.LENGTH_SHORT).show();
+                roomInfo = (UserRoomInfo) intent.getSerializableExtra("room_info");
             }
-            /*if (!(intent.getExtras().get("check_in").equals("YYYY_MM_DD")))
-            {
-                reserve_btn.setText("예약완료");
-                sf = getSharedPreferences("reserve_data", MODE_PRIVATE);
-                SharedPreferences.Editor editor = sf.edit();
-                editor.commit(); // 파일에 최종 반영함
-            }*/
         }
         catch (Exception e)
         {
@@ -93,7 +85,7 @@ public class MyInfoActivity extends Activity {
         switch(keyCode)
         {
             case KeyEvent.KEYCODE_BACK:
-                logout();
+                finish();
                 return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -109,15 +101,17 @@ public class MyInfoActivity extends Activity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 SharedPreferences sf;
-                                sf = getSharedPreferences("reserve_data", MODE_PRIVATE);
+                                /*sf = getSharedPreferences("reserve_data", MODE_PRIVATE);
                                 SharedPreferences.Editor editor1 = sf.edit();
                                 editor1.clear();
-                                editor1.commit();
+                                editor1.commit();*/
 
+                                //로그아웃을 통해 로그인에 필요한 아이디, 비밀번호 데이터 삭제
                                 sf = getSharedPreferences("login_data", MODE_PRIVATE);
                                 SharedPreferences.Editor editor2 = sf.edit();
                                 editor2.clear();
                                 editor2.commit();
+
                                 Intent intent = new Intent(MyInfoActivity.this, LoginActivity.class);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);//액티비티 스택 비우기
                                 startActivity(intent);

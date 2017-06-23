@@ -3,82 +3,63 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#4d4d4d"
+    android:background="@drawable/background1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context="android.seoulaccord.beacon.MyInfoActivity">
-    <TextView
-        android:id="@+id/hotel_name_tv"
-        android:layout_gravity ="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="HOTEL HANIUM"
-        android:textSize="40dp"
-        android:textStyle="bold"
-        android:textColor="#ffffff" />
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="256dp"
-        android:src="@drawable/default_hotel_img"/>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginTop="30dp"
-        android:layout_gravity="center"
-        android:orientation="vertical">
+        android:gravity="bottom|center">
+
+        <Button
+            android:id="@+id/info_btn"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginLeft="6.75dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/info"
+            android:textColor="#ffffff"
+            android:textSize="20dp"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/reserve_btn"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_toLeftOf="@id/info_btn"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginLeft="6.75dp"
             android:layout_marginTop="20dp"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
-            android:background="@drawable/border"
-            android:textStyle="bold"
+            android:background="@drawable/reserve"
             android:textColor="#ffffff"
-            android:textSize="20dp"
-            android:text="예약하기" />
-        <Button
-            android:id="@+id/service_btn"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
-            android:background="@drawable/border"
-            android:textStyle="bold"
-            android:textColor="#ffffff"
-            android:textSize="20dp"
-            android:text="룸서비스" />
+            android:textStyle="bold" />
 
         <Button
-            android:id="@+id/open_btn"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:id="@+id/smartkey_btn"
+            android:layout_toLeftOf="@id/reserve_btn"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginLeft="6.75dp"
             android:layout_marginTop="20dp"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
-            android:background="@drawable/border"
-            android:textStyle="bold"
+            android:background="@drawable/smartkey"
             android:textColor="#ffffff"
             android:textSize="20dp"
-            android:text="스마트키" />
+            android:textStyle="bold" />
+
         <Button
-            android:id="@+id/logout_btn"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:id="@+id/account_btn"
+            android:layout_toLeftOf="@id/smartkey_btn"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginLeft="6.75dp"
             android:layout_marginTop="20dp"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
-            android:background="@drawable/border"
-            android:textStyle="bold"
+            android:background="@drawable/account"
             android:textColor="#ffffff"
             android:textSize="20dp"
-            android:text="로그아웃" />
-/>
-    </LinearLayout>
+            android:textStyle="bold" />
+        />
+    </RelativeLayout>
 
 </LinearLayout>
