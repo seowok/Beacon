@@ -1,4 +1,5 @@
 package android.seoulaccord.beacon;
+
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Context;

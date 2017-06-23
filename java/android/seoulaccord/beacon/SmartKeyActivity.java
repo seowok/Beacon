@@ -1,9 +1,12 @@
 package android.seoulaccord.beacon;
 
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.seoulaccord.beacon.Beacon.BeaconConnection;
+import android.seoulaccord.beacon.Beacon.RoomServiceFragment;
+import android.seoulaccord.beacon.Beacon.SmartKeyFragment;
+import android.seoulaccord.beacon.Data.UserRoomInfo;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,17 +18,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.estimote.sdk.Beacon;
 import com.estimote.sdk.SystemRequirementsHelper;
 
 public class SmartKeyActivity extends AppCompatActivity {
@@ -47,8 +45,7 @@ public class SmartKeyActivity extends AppCompatActivity {
     SystemRequirementsHelper requirements_helper;
     final int REQUEST_BLE = 77;
 
-    ImageView check_in_on;
-    ImageView check_in_off;
+    public static FloatingActionButton beacon_check;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +54,6 @@ public class SmartKeyActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        check_in_on = (ImageView)findViewById(R.id.check_in_on);
-        check_in_off = (ImageView)findViewById(R.id.check_in_off);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -72,11 +66,12 @@ public class SmartKeyActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        beacon_check = (FloatingActionButton) findViewById(R.id.beacon_check);
+        beacon_check.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                if(!BeaconConnection.is_check_in)
+                Snackbar.make(view, "방과 거리가 멀어 서비스가 제한됩니다", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -98,15 +93,6 @@ public class SmartKeyActivity extends AppCompatActivity {
         if(!requirements_helper.isBluetoothEnabled(getApplicationContext())){
             Intent enable_intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enable_intent, REQUEST_BLE);
-        }
-
-        if(BeaconConnection.is_check_in){
-            check_in_on.setVisibility(View.VISIBLE);
-            check_in_off.setVisibility(View.INVISIBLE);
-        }
-        else{
-            check_in_on.setVisibility(View.INVISIBLE);
-            check_in_off.setVisibility(View.VISIBLE);
         }
     }
 
@@ -145,40 +131,6 @@ public class SmartKeyActivity extends AppCompatActivity {
     }
 
     /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_smart_key, container, false);
-            ImageView imageView = (ImageView) rootView.findViewById(R.id.card_key);
-            return rootView;
-        }
-    }
-
-    /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
@@ -192,26 +144,35 @@ public class SmartKeyActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            Fragment fragment;
+            Bundle bundle = new Bundle();
+
+            switch (position){
+                case 0 :
+                    bundle.putBoolean("Beacon", BeaconConnection.is_check_in);
+                    bundle.putBoolean("SmartKey", UserRoomInfo.lock);
+                    fragment = new SmartKeyFragment();
+                    fragment.setArguments(bundle);
+                    return fragment;
+                case 1 :
+                    bundle.putBoolean("Beacon", BeaconConnection.is_check_in);
+                    bundle.putBoolean("RoomService", UserRoomInfo.room_service);
+                    bundle.putBoolean("LightOnOff", UserRoomInfo.light);
+                    bundle.putBoolean("MorningCall", UserRoomInfo.morning_call);
+                    bundle.putBoolean("Lobby", UserRoomInfo.lobby);
+                    bundle.putBoolean("Cleaning", UserRoomInfo.cleaning);
+                    bundle.putBoolean("Replacement", UserRoomInfo.replacement);
+                    fragment = new RoomServiceFragment();
+                    fragment.setArguments(bundle);
+                    return fragment;
+                default: return null;
+            }
         }
 
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "SECTION 1";
-                case 1:
-                    return "SECTION 2";
-                case 2:
-                    return "SECTION 3";
-            }
-            return null;
+            return 2;
         }
     }
 }
